@@ -15,61 +15,72 @@ struct CameraView: View {
     @State private var isShowSendPayView = false        // SendPayViewの表示有無
     @State private var isShowGetPointView = false       // GetPointViewの表示有無
     @State private var isSameStoreScanError = false     // 同日同店舗スキャンエラー
+    @State private var isShowSignOutAlert = false                       // 強制サインアウトアラート
+    
     @State private var chatUserUID = ""                 // 送金相手UID
+    @State private var getPoint = ""                    // 取得ポイント
     
     @Binding var isUserCurrentryLoggedOut: Bool
     
     var body: some View {
         NavigationStack {
-            CodeScannerView(codeTypes: [.qr], completion: handleScan)
-                .overlay {
-                    if vm.isQrCodeScanError {
-                        ZStack {
-                            Color(.red)
-                                .opacity(0.5)
-                            VStack {
-                                Image(systemName: "multiply")
-                                    .resizable()
-                                    .scaledToFit()
-                                    .frame(width: 90, height: 90)
-                                    .foregroundStyle(.white)
-                                    .opacity(0.6)
-                                    .padding(.bottom)
-                                RoundedRectangle(cornerRadius: 20)
-                                    .padding(.horizontal)
-                                    .frame(width: UIScreen.main.bounds.width, height: 40)
-                                    .foregroundStyle(.black)
-                                    .opacity(0.7)
-                                    .overlay {
-                                        Text(isSameStoreScanError ? "このQRコードは後日0時に有効になります。" : "誤ったQRコードがスキャンされました")
-                                            .foregroundStyle(.white)
-                                    }
+            if let isStore = vm.currentUser?.isStore, isStore {
+                Text("店舗アカウントのため、\nカメラの読み取りは不可能です。")
+            } else {
+                CodeScannerView(codeTypes: [.qr], completion: handleScan)
+                    .overlay {
+                        if vm.isQrCodeScanError {
+                            ZStack {
+                                Color(.red)
+                                    .opacity(0.5)
+                                VStack {
+                                    Image(systemName: "multiply")
+                                        .resizable()
+                                        .scaledToFit()
+                                        .frame(width: 90, height: 90)
+                                        .foregroundStyle(.white)
+                                        .opacity(0.6)
+                                        .padding(.bottom)
+                                    RoundedRectangle(cornerRadius: 20)
+                                        .padding(.horizontal)
+                                        .frame(width: UIScreen.main.bounds.width, height: 40)
+                                        .foregroundStyle(.black)
+                                        .opacity(0.7)
+                                        .overlay {
+                                            Text(isSameStoreScanError ? "このQRコードは後日0時に有効になります。" : "誤ったQRコードがスキャンされました")
+                                                .foregroundStyle(.white)
+                                        }
+                                }
                             }
+                        } else {
+                            Rectangle()
+                                .stroke(style:
+                                            StrokeStyle(
+                                                lineWidth: 7,
+                                                lineCap: .round,
+                                                lineJoin: .round,
+                                                miterLimit: 50,
+                                                dash: [100, 100],
+                                                dashPhase: 50
+                                            ))
+                                .frame(width: 200, height: 200)
+                                .foregroundStyle(.white)
                         }
-                    } else {
-                        Rectangle()
-                            .stroke(style:
-                                        StrokeStyle(
-                                            lineWidth: 7,
-                                            lineCap: .round,
-                                            lineJoin: .round,
-                                            miterLimit: 50,
-                                            dash: [100, 100],
-                                            dashPhase: 50
-                                        ))
-                            .frame(width: 200, height: 200)
-                            .foregroundStyle(.white)
                     }
-                }
-                .navigationDestination(isPresented: $isShowGetPointView) {
-                    GetPointView(chatUser: vm.chatUser)
-                }
+                    .navigationDestination(isPresented: $isShowGetPointView) {
+                        GetPointView(chatUser: vm.chatUser, getPoint: getPoint)
+                    }
+            }
         }
         .onAppear {
             if FirebaseManager.shared.auth.currentUser?.uid != nil {
-                vm.fetchCurrentUser()
-                vm.fetchRecentMessages()
-                vm.fetchFriends()
+                if let isStore = vm.currentUser?.isStore, isStore {
+                    // 何も取得しない
+                } else {
+                    vm.fetchCurrentUser()
+                    vm.fetchRecentMessages()
+                    vm.fetchFriends()
+                }
             } else {
                 isUserCurrentryLoggedOut = true
             }
@@ -84,7 +95,21 @@ struct CameraView: View {
         .asSingleAlert(title: "",
                        isShowAlert: $vm.isShowError,
                        message: vm.errorMessage,
-                       didAction: { vm.isShowError = false })
+                       didAction: {
+            DispatchQueue.main.async {
+                vm.isShowError = false
+            }
+            isShowSignOutAlert = true
+        })
+        .asSingleAlert(title: "",
+                        isShowAlert: $isShowSignOutAlert,
+                        message: "エラーが発生したためログアウトします。",
+                        didAction: {
+             DispatchQueue.main.async {
+                 isShowSignOutAlert = false
+             }
+             handleSignOut()
+         })
         .asSingleAlert(title: "",
                        isShowAlert: $vm.isShowNotConfirmEmailError,
                        message: "メールアドレスの認証を完了してください",
@@ -147,6 +172,7 @@ struct CameraView: View {
                         } else {
                             vm.isQrCodeScanError = true
                             isSameStoreScanError = true
+                            return
                         }
                     } else {
                         handleGetPointFromStore(chatUser: chatUser)
@@ -169,9 +195,10 @@ struct CameraView: View {
     /// - Returns: なし
     private func handleGetPointFromStore(chatUser: ChatUser) {
         guard let currentUser = vm.currentUser else { return }
+        getPoint = Setting.getPointFromStore
         
         guard let currentUserMoney = Int(currentUser.money),
-              let intGetPoint = Int(Setting.getPointFromStore) else {
+              let intGetPoint = Int(getPoint) else {
             vm.handleError("送金エラーが発生しました。", error: nil)
             return
         }
@@ -188,11 +215,19 @@ struct CameraView: View {
             FirebaseConstants.uid: chatUser.uid,
             FirebaseConstants.email: chatUser.email,
             FirebaseConstants.profileImageUrl: chatUser.profileImageUrl,
-            FirebaseConstants.getPoint: Setting.getPointFromStore,
+            FirebaseConstants.getPoint: getPoint,
             FirebaseConstants.username: chatUser.username,
             FirebaseConstants.date: vm.dateFormat(Date()),
         ] as [String : Any]
         vm.persistStorePoints(document1: currentUser.uid, document2: chatUser.uid, data: storePointData)
+    }
+    
+    // MARK: - サインアウト
+    /// - Parameters: なし
+    /// - Returns: なし
+    private func handleSignOut() {
+        isUserCurrentryLoggedOut = true
+        try? FirebaseManager.shared.auth.signOut()
     }
 }
 

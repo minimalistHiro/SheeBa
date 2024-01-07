@@ -85,6 +85,8 @@
 		FD1162002B46947F000B0064 /* MessageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FD1161FF2B46947F000B0064 /* MessageView.swift */; };
 		FD1162022B46949D000B0064 /* ImagePicker.swift in Sources */ = {isa = PBXBuildFile; fileRef = FD1162012B46949D000B0064 /* ImagePicker.swift */; };
 		FD1162042B4694AD000B0064 /* Indicator.swift in Sources */ = {isa = PBXBuildFile; fileRef = FD1162032B4694AD000B0064 /* Indicator.swift */; };
+		FD1BFDD92B4A7E780049CC53 /* UIViewExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = FD1BFDD82B4A7E780049CC53 /* UIViewExtension.swift */; };
+		FD1BFDDB2B4A7FF70049CC53 /* ActivityView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FD1BFDDA2B4A7FF70049CC53 /* ActivityView.swift */; };
 		FD4122B82B46C46C0050F0BC /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = FD4122B72B46C46B0050F0BC /* GoogleService-Info.plist */; };
 		FD4122BB2B47BA9D0050F0BC /* MailCompose.swift in Sources */ = {isa = PBXBuildFile; fileRef = FD4122BA2B47BA9D0050F0BC /* MailCompose.swift */; };
 		FD4122BE2B47C6CD0050F0BC /* SetUpPhoneView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FD4122BD2B47C6CD0050F0BC /* SetUpPhoneView.swift */; };
@@ -145,6 +147,8 @@
 		FD1161FF2B46947F000B0064 /* MessageView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MessageView.swift; sourceTree = "<group>"; };
 		FD1162012B46949D000B0064 /* ImagePicker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImagePicker.swift; sourceTree = "<group>"; };
 		FD1162032B4694AD000B0064 /* Indicator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Indicator.swift; sourceTree = "<group>"; };
+		FD1BFDD82B4A7E780049CC53 /* UIViewExtension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UIViewExtension.swift; sourceTree = "<group>"; };
+		FD1BFDDA2B4A7FF70049CC53 /* ActivityView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ActivityView.swift; sourceTree = "<group>"; };
 		FD4122B72B46C46B0050F0BC /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
 		FD4122B92B46CC590050F0BC /* SheeBa.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = SheeBa.entitlements; sourceTree = "<group>"; };
 		FD4122BA2B47BA9D0050F0BC /* MailCompose.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MailCompose.swift; sourceTree = "<group>"; };
@@ -280,6 +284,8 @@
 				FD058C202B468EF400D4F467 /* RecentMessage.swift */,
 				FD058C222B468F0100D4F467 /* Friend.swift */,
 				FD058C242B468F1000D4F467 /* StorePoint.swift */,
+				FD1161DF2B469007000B0064 /* ResetPasswordView.swift */,
+				FD1161EB2B46938C000B0064 /* QRCodeView.swift */,
 			);
 			path = Model;
 			sourceTree = "<group>";
@@ -303,6 +309,7 @@
 			children = (
 				FD058C0E2B468DEF00D4F467 /* ViewExtension.swift */,
 				FD058C122B468E3B00D4F467 /* UIImageExtension.swift */,
+				FD1BFDD82B4A7E780049CC53 /* UIViewExtension.swift */,
 				FD058C142B468E4F00D4F467 /* StringExtension.swift */,
 			);
 			path = Extension;
@@ -333,7 +340,6 @@
 			children = (
 				FD1161DB2B468FE9000B0064 /* LoginView.swift */,
 				FD1161DD2B468FF8000B0064 /* SendEmailView.swift */,
-				FD1161DF2B469007000B0064 /* ResetPasswordView.swift */,
 			);
 			path = LoginViews;
 			sourceTree = "<group>";
@@ -346,7 +352,6 @@
 				FD1161E52B46904D000B0064 /* CreateNewMessageView.swift */,
 				FD1161E72B46936D000B0064 /* ChatLogView.swift */,
 				FD1161E92B46937D000B0064 /* SendPayView.swift */,
-				FD1161EB2B46938C000B0064 /* QRCodeView.swift */,
 				FD1161ED2B4693A6000B0064 /* GetPointView.swift */,
 				FD058BC22B468C7400D4F467 /* StoreViews */,
 			);
@@ -387,6 +392,7 @@
 			children = (
 				FD1162012B46949D000B0064 /* ImagePicker.swift */,
 				FD1162032B4694AD000B0064 /* Indicator.swift */,
+				FD1BFDDA2B4A7FF70049CC53 /* ActivityView.swift */,
 			);
 			path = UIKit;
 			sourceTree = "<group>";
@@ -539,6 +545,7 @@
 				FD058C092B468DB900D4F467 /* SingleAlertModifier.swift in Sources */,
 				FD1161F02B4693B6000B0064 /* StoreQRCodeView.swift in Sources */,
 				FD1161DE2B468FF8000B0064 /* SendEmailView.swift in Sources */,
+				FD1BFDD92B4A7E780049CC53 /* UIViewExtension.swift in Sources */,
 				FD1161D42B468F9E000B0064 /* EntryView.swift in Sources */,
 				FD058C172B468E7000D4F467 /* ViewModel.swift in Sources */,
 				FD058C112B468E1A00D4F467 /* DestructiveAlertModifier.swift in Sources */,
@@ -557,6 +564,7 @@
 				FD1161D82B468FC6000B0064 /* SetUpEmailView.swift in Sources */,
 				FD4958512B4A26C700FE41EC /* NotConfirmEmailView.swift in Sources */,
 				FD4122BB2B47BA9D0050F0BC /* MailCompose.swift in Sources */,
+				FD1BFDDB2B4A7FF70049CC53 /* ActivityView.swift in Sources */,
 				FD4122C02B47C8E90050F0BC /* SMSAuthView.swift in Sources */,
 				FD1161DC2B468FE9000B0064 /* LoginView.swift in Sources */,
 				FD058C052B468D8F00D4F467 /* CloseButtonModifier.swift in Sources */,
@@ -709,6 +717,7 @@
 				INFOPLIST_FILE = SheeBa/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = SheeBa;
 				INFOPLIST_KEY_NSCameraUsageDescription = "QRコードを読み取る為に使用します。";
+				INFOPLIST_KEY_NSPhotoLibraryUsageDescription = "店舗用QRコードを保存するために使用します。";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -747,6 +756,7 @@
 				INFOPLIST_FILE = SheeBa/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = SheeBa;
 				INFOPLIST_KEY_NSCameraUsageDescription = "QRコードを読み取る為に使用します。";
+				INFOPLIST_KEY_NSPhotoLibraryUsageDescription = "店舗用QRコードを保存するために使用します。";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;

@@ -24,6 +24,8 @@ final class ViewModel: ObservableObject {
     @Published var storePoint: StorePoint?                      // 特定の店舗ポイント情報
     @Published var errorMessage = ""                            // エラーメッセージ
     @Published var isShowError = false                          // エラー表示有無
+    @Published var alertMessage = ""                            // アラートメッセージ
+    @Published var isShowAlert = false                          // アラート表示有無
     @Published var isScroll = false                             // メッセージスクロール用変数
     @Published var onIndicator = false                          // インジケーターが進行中か否か
     @Published var isQrCodeScanError = false                    // QRコード読み取りエラー
@@ -73,9 +75,16 @@ final class ViewModel: ObservableObject {
                 }
                 
                 // メールアドレス未認証の場合のエラー
-                if !currentUser.isConfirmEmail {
+                if !currentUser.isConfirmEmail && !currentUser.isStore {
                     self.isShowNotConfirmEmailError = true
                     try? FirebaseManager.shared.auth.signOut()
+                }
+                
+                // 初回特典アラート表示
+                if !currentUser.isFirstLogin && !currentUser.isStore {
+                    self.handleAlert("初回登録特典として\n\(Setting.newRegistrationBenefits)ptプレゼント！")
+                    let data = [FirebaseConstants.isFirstLogin: true,]
+                    self.updateUsers(document: currentUser.uid, data: data)
                 }
                 
                 self.onIndicator = false
@@ -583,6 +592,16 @@ final class ViewModel: ObservableObject {
         }
     }
     
+    /// アラート
+    /// - Parameters:
+    ///   - message: メッセージ
+    /// - Returns: なし
+    func handleAlert(_ message: String) {
+        self.onIndicator = false
+        self.alertMessage = message
+        self.isShowAlert = true
+    }
+    
 // MARK: - Persist
     
     /// ユーザー情報を保存
@@ -601,6 +620,7 @@ final class ViewModel: ObservableObject {
                         FirebaseConstants.age: age,
                         FirebaseConstants.address: address,
                         FirebaseConstants.isConfirmEmail: false,
+                        FirebaseConstants.isFirstLogin: false,
                         FirebaseConstants.isStore: false,
                         FirebaseConstants.isOwner: false,
         ] as [String : Any]

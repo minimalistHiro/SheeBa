@@ -10,6 +10,7 @@ import FirebaseAuth
 
 struct SendEmailView: View {
     
+    @Environment(\.dismiss) var dismiss
     @FocusState var focus: Bool
     @ObservedObject var vm: ViewModel
     let didCompleteLoginProcess: () -> ()
@@ -67,6 +68,7 @@ struct SendEmailView: View {
                        message: "入力したメールアドレスにパスワード再設定用のURLを送信しました。",
                        didAction: {
             isShowSendEmailAlert = false
+            dismiss()
         })
     }
     

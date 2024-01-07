@@ -11,36 +11,48 @@ struct StoreQRCodeView: View {
     
     @ObservedObject var vm = ViewModel()
     @State private var qrCodeImage: UIImage?
+    @State private var rect: CGRect = .zero                 // スキャン範囲
+    @State private var uiImage: UIImage? = nil
+    @State private var isShowActivityView = false
+    
     @Binding var isUserCurrentryLoggedOut: Bool
+    
+    // ボタンの有効性
+    var disabled: Bool {
+        qrCodeImage == nil
+    }
     
     var body: some View {
         VStack {
+            Spacer()
+            
+            VStack {
+                if let image = vm.currentUser?.profileImageUrl {
+                    if image == "" {
+                        Icon.CustomCircle(imageSize: .large)
+                    } else {
+                        Icon.CustomWebImage(imageSize: .large, image: image)
+                    }
+                } else {
+                    Icon.CustomCircle(imageSize: .large)
+                }
+                
+                Text(vm.currentUser?.username ?? "")
+                    .font(.title3)
+                    .bold()
+                    .padding()
+            }
+            
+            Spacer()
+            
             Rectangle()
                 .foregroundStyle(.white)
-                .frame(width: 300, height: 400)
+                .frame(width: 180, height: 180)
                 .cornerRadius(20)
                 .shadow(radius: 7, x: 0, y: 0)
+                .background(RectangleGetter(rect: $rect))
                 .overlay {
                     VStack {
-                        Spacer()
-                        
-                        HStack(spacing: 15) {
-                            if let image = vm.currentUser?.profileImageUrl {
-                                if image == "" {
-                                    Icon.CustomCircle(imageSize: .medium)
-                                } else {
-                                    Icon.CustomWebImage(imageSize: .medium, image: image)
-                                }
-                            } else {
-                                Icon.CustomCircle(imageSize: .medium)
-                            }
-                            Text(vm.currentUser?.username ?? "")
-                                .font(.title3)
-                                .bold()
-                        }
-                        
-                        Spacer()
-                        
                         if vm.onIndicator {
                             ScaleEffectIndicator(onIndicator: $vm.onIndicator)
                         } else {
@@ -48,7 +60,7 @@ struct StoreQRCodeView: View {
                                 Image(uiImage: qrCodeImage)
                                     .resizable()
                                     .scaledToFit()
-                                    .frame(width: 200, height: 200)
+                                    .frame(width: 150, height: 150)
                             } else {
                                 VStack {
                                     Text("データを読み込めませんでした。")
@@ -62,16 +74,26 @@ struct StoreQRCodeView: View {
                                             .frame(width: 20)
                                     }
                                 }
-                                .frame(width: 200, height: 200)
+                                .frame(width: 150, height: 150)
                             }
                         }
-                        
-                        Spacer()
-                        Text("残ポイント: \(vm.currentUser?.money ?? "") pt")
-                            .font(.headline)
-                        Spacer()
                     }
                 }
+            Spacer()
+            
+            Button {
+                let scenes = UIApplication.shared.connectedScenes
+                let windowScenes = scenes.first as? UIWindowScene
+                if let uiImage = windowScenes?.windows[0].rootViewController?.view!.getImage(rect: self.rect) {
+                    self.uiImage = uiImage
+                    isShowActivityView = true
+                }
+            } label: {
+                CustomCapsule(text: "QRコードを共有", imageSystemName: "square.and.arrow.up", foregroundColor: disabled ? .gray : .black, textColor: .white, isStroke: false)
+            }
+            .disabled(disabled)
+            
+            Spacer()
         }
         .onAppear {
             vm.fetchCurrentUser()
@@ -79,6 +101,27 @@ struct StoreQRCodeView: View {
                 self.qrCodeImage = vm.generateQRCode(inputText: vm.currentUser?.uid ?? "")
             }
         }
+        .sheet(isPresented: $isShowActivityView) {
+            ActivityView(activityItems: [uiImage as Any], applicationActivities: nil)
+        }
+    }
+}
+
+// MARK: - 範囲キャプチャ用透明View
+struct RectangleGetter: View {
+    @Binding var rect: CGRect
+
+    var body: some View {
+        GeometryReader { geometry in
+            self.createView(proxy: geometry)
+        }
+    }
+
+    func createView(proxy: GeometryProxy) -> some View {
+        DispatchQueue.main.async {
+            self.rect = proxy.frame(in: .global)
+        }
+        return Rectangle().fill(Color.clear)
     }
 }
 

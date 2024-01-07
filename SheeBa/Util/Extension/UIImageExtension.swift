@@ -5,7 +5,7 @@
 //  Created by 金子広樹 on 2023/11/25.
 //
 
-import UIKit
+import SwiftUI
 
 extension UIImage {
     // UIImageの中心に小さいUIImageを配置して合成する

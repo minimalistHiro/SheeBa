@@ -18,6 +18,7 @@ struct ChatUser: Hashable, Identifiable {
     let age: String
     let address: String
     let isConfirmEmail: Bool
+    let isFirstLogin: Bool
     let isStore: Bool
     let isOwner: Bool
     
@@ -30,6 +31,7 @@ struct ChatUser: Hashable, Identifiable {
         self.age = data[FirebaseConstants.age] as? String ?? ""
         self.address = data[FirebaseConstants.address] as? String ?? ""
         self.isConfirmEmail = data[FirebaseConstants.isConfirmEmail] as? Bool ?? false
+        self.isFirstLogin = data[FirebaseConstants.isFirstLogin] as? Bool ?? false
         self.isStore = data[FirebaseConstants.isStore] as? Bool ?? false
         self.isOwner = data[FirebaseConstants.isOwner] as? Bool ?? false
     }

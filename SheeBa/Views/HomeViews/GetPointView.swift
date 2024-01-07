@@ -11,6 +11,7 @@ struct GetPointView: View {
     
     @Environment(\.dismiss) var dismiss
     let chatUser: ChatUser?
+    let getPoint: String
     
     var body: some View {
         NavigationStack {
@@ -34,7 +35,7 @@ struct GetPointView: View {
                 }
                 
                 HStack {
-                    Text("1")
+                    Text(getPoint)
                         .font(.system(size: 70))
                         .bold()
                     Text("pt")
@@ -61,5 +62,5 @@ struct GetPointView: View {
 }
 
 #Preview {
-    GetPointView(chatUser: nil)
+    GetPointView(chatUser: nil, getPoint: "1")
 }

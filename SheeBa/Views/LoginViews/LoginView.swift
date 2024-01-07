@@ -13,6 +13,7 @@ struct LoginView: View {
     @ObservedObject var vm: ViewModel
     let didCompleteLoginProcess: () -> ()
     @State private var isShowPassword = false                   // パスワード表示有無
+    @State private var isNavigateSendEmailView = false          // メール送信画面の表示有無
     
     // DB
     @State private var email: String = ""               // メールアドレス
@@ -47,12 +48,18 @@ struct LoginView: View {
                 
                 Spacer()
                 
-                NavigationLink {
-                    SendEmailView(didCompleteLoginProcess: didCompleteLoginProcess)
+                Button {
+                    isNavigateSendEmailView = true
                 } label: {
                     Text("パスワードを忘れた方はこちら")
                         .foregroundStyle(.blue)
                 }
+//                NavigationLink {
+//                    SendEmailView(didCompleteLoginProcess: didCompleteLoginProcess)
+//                } label: {
+//                    Text("パスワードを忘れた方はこちら")
+//                        .foregroundStyle(.blue)
+//                }
                 
                 Spacer()
             }
@@ -65,6 +72,9 @@ struct LoginView: View {
             .navigationBarTitleDisplayMode(.inline)
             .overlay {
                 ScaleEffectIndicator(onIndicator: $vm.onIndicator)
+            }
+            .navigationDestination(isPresented: $isNavigateSendEmailView) {
+                SendEmailView(didCompleteLoginProcess: didCompleteLoginProcess)
             }
         }
         .asBackButton()

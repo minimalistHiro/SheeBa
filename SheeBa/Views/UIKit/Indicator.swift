@@ -12,22 +12,19 @@ struct Indicator: UIViewRepresentable {
     @Binding var onIndicator: Bool             // インジケーターが進行中か否か
     
     func makeUIView(context: Context) -> UIActivityIndicatorView {
-        //UIKitのビューを作成
         return UIActivityIndicatorView()
     }
     
     func updateUIView(_ uiView: UIActivityIndicatorView, context: Context) {
-            if onIndicator {
-                //進行させる
-                uiView.startAnimating()
-                
-            } else {
-                //進行させない
-                uiView.stopAnimating()
-            }
+        if onIndicator {
+            uiView.startAnimating()
+        } else {
+            uiView.stopAnimating()
         }
+    }
 }
 
+// 3倍に拡大したインジケーター
 struct ScaleEffectIndicator: View {
     
     @Binding var onIndicator: Bool

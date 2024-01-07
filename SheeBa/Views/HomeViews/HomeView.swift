@@ -58,6 +58,10 @@ struct HomeView: View {
             }
         }
         .asSingleAlert(title: "",
+                       isShowAlert: $vm.isShowAlert,
+                       message: vm.alertMessage,
+                       didAction: { vm.isShowAlert = false })
+        .asSingleAlert(title: "",
                        isShowAlert: $vm.isShowError,
                        message: vm.errorMessage,
                        didAction: {
@@ -88,9 +92,9 @@ struct HomeView: View {
             }
         }
         // TODO: - fullScrrenCover同士がバッティングするとうまく表示されない。
-        .fullScreenCover(isPresented: $isShowQRCodeView) {
-            QRCodeView()
-        }
+//        .fullScreenCover(isPresented: $isShowQRCodeView) {
+//            QRCodeView()
+//        }
         .fullScreenCover(isPresented: $vm.isNavigateNotConfirmEmailView) {
             NotConfirmEmailView {
                 vm.isNavigateNotConfirmEmailView = false
@@ -108,7 +112,7 @@ struct HomeView: View {
             .overlay {
                 VStack {
                     Spacer()
-                    Text("残ポイント")
+                    Text("獲得ポイント")
                     Spacer()
                     HStack {
                         Spacer()

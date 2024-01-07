@@ -18,6 +18,7 @@ struct FirebaseConstants {
     static let age = "age"
     static let address = "address"
     static let isConfirmEmail = "isConfirmEmail"
+    static let isFirstLogin = "isFirstLogin"
     static let isStore = "isStore"
     static let isOwner = "isOwner"
     
