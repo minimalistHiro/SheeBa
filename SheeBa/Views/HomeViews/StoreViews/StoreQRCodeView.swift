@@ -38,7 +38,7 @@ struct StoreQRCodeView: View {
                 }
                 
                 Text(vm.currentUser?.username ?? "")
-                    .font(.title3)
+                    .font(.title2)
                     .bold()
                     .padding()
             }

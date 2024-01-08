@@ -15,6 +15,7 @@ struct Icon {
         case small
         case medium
         case large
+        case xLarge
         
         var frameSize: CGFloat {
             switch self {
@@ -22,6 +23,7 @@ struct Icon {
             case .small: 40
             case .medium: 60
             case .large: 100
+            case .xLarge: 200
             }
         }
         
@@ -31,6 +33,7 @@ struct Icon {
             case .small: 1
             case .medium: 2
             case .large: 3
+            case .xLarge: 5
             }
         }
         
@@ -40,6 +43,7 @@ struct Icon {
             case .small: 0
             case .medium: 0
             case .large: 5
+            case .xLarge: 5
             }
         }
     }
@@ -102,6 +106,57 @@ struct Icon {
                         .frame(width: imageSize.frameSize, height: imageSize.frameSize)
                 }
                 .shadow(radius: imageSize.shadow)
+        }
+    }
+    
+    struct CustomImageChangeCircle: View {
+        
+        let imageSize: ImageSize
+        
+        var fontSize: CGFloat {
+            switch imageSize {
+            case .mini:
+                3
+            case .small:
+                3
+            case .medium:
+                5
+            case .large:
+                10
+            case .xLarge:
+                17
+            }
+        }
+        
+        var paddingBottom: CGFloat {
+            switch imageSize {
+            case .mini:
+                3
+            case .small:
+                3
+            case .medium:
+                4
+            case .large:
+                7
+            case .xLarge:
+                15
+            }
+        }
+        
+        var body: some View {
+            Circle()
+                .trim(from: 0.1, to: 0.4)
+                .foregroundStyle(.black.opacity(0.4))
+                .frame(width: imageSize.frameSize, height: imageSize.frameSize)
+                .overlay {
+                    VStack {
+                        Spacer()
+                        Text("変更")
+                            .foregroundStyle(.white)
+                            .font(.system(size: fontSize))
+                            .padding(.bottom, paddingBottom)
+                    }
+                }
         }
     }
 }

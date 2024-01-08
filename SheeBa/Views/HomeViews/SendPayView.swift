@@ -146,11 +146,11 @@ struct SendPayView: View {
         
         // 送金相手のデータを更新
         let chatUserData = [FirebaseConstants.money: String(calculatedChatUserMoney),]
-        vm.updateUsers(document: chatUser.uid, data: chatUserData)
+        vm.updateUser(document: chatUser.uid, data: chatUserData)
         
         // 自身のデータを更新
         let userData = [FirebaseConstants.money: String(calculatedCurrentUserMoney),]
-        vm.updateUsers(document: currentUser.uid, data: userData)
+        vm.updateUser(document: currentUser.uid, data: userData)
     }
     
     // MARK: - 友達を登録、若しくは更新をする。
@@ -167,9 +167,9 @@ struct SendPayView: View {
                 } else {
                     // 友達に登録されていて承認が済んでいない場合、自身と相手の両方のデータを更新
                     let data = [FirebaseConstants.isApproval: true,]
-                    vm.updateFriends(document1: currentUser.uid
+                    vm.updateFriend(document1: currentUser.uid
                                      , document2: chatUser.uid, data: data)
-                    vm.updateFriends(document1: chatUser.uid, document2: currentUser.uid, data: data)
+                    vm.updateFriend(document1: chatUser.uid, document2: currentUser.uid, data: data)
                     return
                 }
             }
@@ -196,7 +196,7 @@ struct SendPayView: View {
             FirebaseConstants.isStore: currentUser.isStore,
         ] as [String : Any]
         
-        vm.persistFriends(document1: currentUser.uid, document2: chatUser.uid, data: myData)
+        vm.persistFriend(document1: currentUser.uid, document2: chatUser.uid, data: myData)
         
         // 送ポイント相手の友達データを保存
         let chatUserData = [
@@ -210,7 +210,7 @@ struct SendPayView: View {
             FirebaseConstants.isStore: currentUser.isStore,
         ] as [String : Any]
         
-        vm.persistFriends(document1: chatUser.uid, document2: currentUser.uid, data: chatUserData)
+        vm.persistFriend(document1: chatUser.uid, document2: currentUser.uid, data: chatUserData)
     }
     
     // MARK: - キーボード入力から実行処理を分配する

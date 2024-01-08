@@ -12,6 +12,7 @@ struct GetPointView: View {
     @Environment(\.dismiss) var dismiss
     let chatUser: ChatUser?
     let getPoint: String
+    let isSameStoreScanError: Bool
     
     var body: some View {
         NavigationStack {
@@ -19,32 +20,37 @@ struct GetPointView: View {
                 Spacer()
                 
                 // トップ画像
-                HStack(spacing: 15) {
-                    if let image = chatUser?.profileImageUrl {
-                        if image == "" {
-                            Icon.CustomCircle(imageSize: .medium)
-                        } else {
-                            Icon.CustomWebImage(imageSize: .medium, image: image)
-                        }
+                VStack {
+                    if let image = chatUser?.profileImageUrl, image != "" {
+                        Icon.CustomWebImage(imageSize: .large, image: image)
                     } else {
                         Icon.CustomCircle(imageSize: .large)
                     }
                     Text(chatUser?.username ?? "")
-                        .font(.title3)
+                        .font(.title2)
                         .bold()
+                        .padding()
                 }
                 
-                HStack {
-                    Text(getPoint)
-                        .font(.system(size: 70))
-                        .bold()
-                    Text("pt")
-                        .font(.title)
-                }
+                Spacer()
                 
-                Text("ゲット!")
-                    .font(.system(size: 30))
-                    .bold()
+                if isSameStoreScanError {
+                    Text("このQRコードは後日0時に有効になります。")
+                        .bold()
+                        .padding()
+                } else {
+                    HStack {
+                        Text(getPoint)
+                            .font(.system(size: 70))
+                            .bold()
+                        Text("pt")
+                            .font(.title)
+                    }
+                    
+                    Text("ゲット!")
+                        .font(.system(size: 30))
+                        .bold()
+                }
                 
                 Spacer()
                 
@@ -55,6 +61,7 @@ struct GetPointView: View {
                 }
                 
                 Spacer()
+                Spacer()
             }
         }
         .navigationBarBackButtonHidden(true)
@@ -62,5 +69,5 @@ struct GetPointView: View {
 }
 
 #Preview {
-    GetPointView(chatUser: nil, getPoint: "1")
+    GetPointView(chatUser: nil, getPoint: "1", isSameStoreScanError: false)
 }

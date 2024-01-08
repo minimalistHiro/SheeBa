@@ -10,7 +10,6 @@ import SDWebImageSwiftUI
 
 struct AccountView: View {
     
-//    @ObservedObject var vm = ContentViewModel()
     @ObservedObject var vm = ViewModel()
     @ObservedObject var userSetting = UserSetting()
     @State private var isShowConfirmationSignOutAlert = false           // サインアウト確認アラート
@@ -32,17 +31,22 @@ struct AccountView: View {
         NavigationStack {
             VStack {
                 // トップ画像
-                if let image = vm.currentUser?.profileImageUrl {
-                    if image == "" {
-                        Icon.CustomCircle(imageSize: .large)
+                NavigationLink {
+                    UpdateImageView()
+                } label: {
+                    if let image = vm.currentUser?.profileImageUrl, image != "" {
+                        Icon.CustomWebImage(imageSize: .large, image: image)
+                            .overlay {
+                                Icon.CustomImageChangeCircle(imageSize: .large)
+                            }
                             .padding(.top, 20)
                     } else {
-                        Icon.CustomWebImage(imageSize: .large, image: image)
+                        Icon.CustomCircle(imageSize: .large)
+                            .overlay {
+                                Icon.CustomImageChangeCircle(imageSize: .large)
+                            }
                             .padding(.top, 20)
                     }
-                } else {
-                    Icon.CustomCircle(imageSize: .large)
-                        .padding(.top, 20)
                 }
                 
                 Text(vm.currentUser?.username ?? "しば太郎")
@@ -119,13 +123,11 @@ struct AccountView: View {
                 vm.fetchCurrentUser()
                 vm.fetchRecentMessages()
                 vm.fetchFriends()
+                vm.fetchStorePoints()
             } else {
                 isUserCurrentryLoggedOut = true
             }
         }
-//        .onChange(of: FirebaseManager.shared.auth.currentUser?.uid) { uid in
-//            vm.isUserCurrentryLoggedOut = uid == nil
-//        }
         .asDestructiveAlert(title: "",
                             isShowAlert: $isShowConfirmationSignOutAlert,
                             message: "ログアウトしますか？",
@@ -142,14 +144,14 @@ struct AccountView: View {
                             buttonText: "退会",
                             didAction: {
             handleWithdrawal()
-//            DispatchQueue.main.async {
-//                isShowConfirmationWithdrawalAlert = false
-//            }
-//            isShowSuccessWithdrawalAlert = true
+            //            DispatchQueue.main.async {
+            //                isShowConfirmationWithdrawalAlert = false
+            //            }
+            //            isShowSuccessWithdrawalAlert = true
         })
         .asSingleAlert(title: "",
                        isShowAlert: $isShowSuccessWithdrawalAlert,
-                       message: "退会しました。",
+                       message: "ご利用ありがとうございました。",
                        didAction: {
             DispatchQueue.main.async {
                 isShowSuccessWithdrawalAlert = false
@@ -166,14 +168,14 @@ struct AccountView: View {
             isShowSignOutAlert = true
         })
         .asSingleAlert(title: "",
-                        isShowAlert: $isShowSignOutAlert,
-                        message: "エラーが発生したためログアウトします。",
-                        didAction: {
-             DispatchQueue.main.async {
-                 isShowSignOutAlert = false
-             }
-             handleSignOut()
-         })
+                       isShowAlert: $isShowSignOutAlert,
+                       message: "エラーが発生したためログアウトします。",
+                       didAction: {
+            DispatchQueue.main.async {
+                isShowSignOutAlert = false
+            }
+            handleSignOut()
+        })
         .asSingleAlert(title: "",
                        isShowAlert: $vm.isShowNotConfirmEmailError,
                        message: "メールアドレスの認証を完了してください",
@@ -186,6 +188,7 @@ struct AccountView: View {
                 vm.fetchCurrentUser()
                 vm.fetchRecentMessages()
                 vm.fetchFriends()
+                vm.fetchStorePoints()
             }
         }
         .fullScreenCover(isPresented: $vm.isNavigateNotConfirmEmailView) {
@@ -201,12 +204,15 @@ struct AccountView: View {
     private func handleWithdrawal() {
         guard let uid = FirebaseManager.shared.auth.currentUser?.uid else { return }
         
+        // 認証情報削除
+        vm.deleteAuth()
+        
         // ユーザー情報削除
-        vm.deleteUsers(document: uid)
+        vm.deleteUser(document: uid)
         
         // メッセージを削除
         for recentMessage in vm.recentMessages {
-            vm.deleteMessages(document: uid, collection: FirebaseManager.shared.auth.currentUser?.uid == recentMessage.fromId ? recentMessage.toId : recentMessage.fromId)
+            vm.deleteMessage(document: uid, collection: FirebaseManager.shared.auth.currentUser?.uid == recentMessage.fromId ? recentMessage.toId : recentMessage.fromId)
         }
         
         // 最新メッセージを削除
@@ -219,11 +225,13 @@ struct AccountView: View {
             vm.deleteFriend(document1: uid, document2: friend.uid)
         }
         
+        // 店舗ポイント情報を削除
+        for storePoint in vm.storePoints {
+            vm.deleteStorePoint(document1: uid, document2: storePoint.uid)
+        }
+        
         // 画像削除
         vm.deleteImage(withPath: uid)
-        
-        // Auth削除
-        vm.deleteAuth()
         
         isShowConfirmationWithdrawalAlert = false
         isShowSuccessWithdrawalAlert = true

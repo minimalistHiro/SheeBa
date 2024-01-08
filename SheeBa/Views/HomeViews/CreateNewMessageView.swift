@@ -129,7 +129,7 @@ struct CreateNewMessageView: View {
             FirebaseConstants.isStore: currentUser.isStore,
         ] as [String : Any]
         
-        vm.persistFriends(document1: currentUser.uid, document2: chatUser.uid, data: myData)
+        vm.persistFriend(document1: currentUser.uid, document2: chatUser.uid, data: myData)
         
         // リクエスト相手の友達データを保存
         let chatUserData = [
@@ -143,7 +143,7 @@ struct CreateNewMessageView: View {
             FirebaseConstants.isStore: currentUser.isStore,
         ] as [String : Any]
         
-        vm.persistFriends(document1: chatUser.uid, document2: currentUser.uid, data: chatUserData)
+        vm.persistFriend(document1: chatUser.uid, document2: currentUser.uid, data: chatUserData)
     }
 }
 

@@ -93,6 +93,7 @@
 		FD4122C02B47C8E90050F0BC /* SMSAuthView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FD4122BF2B47C8E90050F0BC /* SMSAuthView.swift */; };
 		FD4122C22B4823920050F0BC /* ConfirmEmailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FD4122C12B4823920050F0BC /* ConfirmEmailView.swift */; };
 		FD4958512B4A26C700FE41EC /* NotConfirmEmailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FD4958502B4A26C700FE41EC /* NotConfirmEmailView.swift */; };
+		FD50703D2B4B9A4B008C42E7 /* UpdateImageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FD50703C2B4B9A4B008C42E7 /* UpdateImageView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -156,6 +157,7 @@
 		FD4122BF2B47C8E90050F0BC /* SMSAuthView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SMSAuthView.swift; sourceTree = "<group>"; };
 		FD4122C12B4823920050F0BC /* ConfirmEmailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConfirmEmailView.swift; sourceTree = "<group>"; };
 		FD4958502B4A26C700FE41EC /* NotConfirmEmailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotConfirmEmailView.swift; sourceTree = "<group>"; };
+		FD50703C2B4B9A4B008C42E7 /* UpdateImageView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UpdateImageView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -284,8 +286,6 @@
 				FD058C202B468EF400D4F467 /* RecentMessage.swift */,
 				FD058C222B468F0100D4F467 /* Friend.swift */,
 				FD058C242B468F1000D4F467 /* StorePoint.swift */,
-				FD1161DF2B469007000B0064 /* ResetPasswordView.swift */,
-				FD1161EB2B46938C000B0064 /* QRCodeView.swift */,
 			);
 			path = Model;
 			sourceTree = "<group>";
@@ -370,6 +370,7 @@
 			isa = PBXGroup;
 			children = (
 				FD1161F32B4693DE000B0064 /* AccountView.swift */,
+				FD50703C2B4B9A4B008C42E7 /* UpdateImageView.swift */,
 				FD1161F52B4693ED000B0064 /* UpdateUsernameView.swift */,
 				FD1161F72B4693FE000B0064 /* UserAttributeView.swift */,
 			);
@@ -412,6 +413,8 @@
 				FD4122BD2B47C6CD0050F0BC /* SetUpPhoneView.swift */,
 				FD4122BF2B47C8E90050F0BC /* SMSAuthView.swift */,
 				FD1161D92B468FD4000B0064 /* SetUpPasswordView.swift */,
+				FD1161DF2B469007000B0064 /* ResetPasswordView.swift */,
+				FD1161EB2B46938C000B0064 /* QRCodeView.swift */,
 			);
 			path = Trash;
 			sourceTree = "<group>";
@@ -564,6 +567,7 @@
 				FD1161D82B468FC6000B0064 /* SetUpEmailView.swift in Sources */,
 				FD4958512B4A26C700FE41EC /* NotConfirmEmailView.swift in Sources */,
 				FD4122BB2B47BA9D0050F0BC /* MailCompose.swift in Sources */,
+				FD50703D2B4B9A4B008C42E7 /* UpdateImageView.swift in Sources */,
 				FD1BFDDB2B4A7FF70049CC53 /* ActivityView.swift in Sources */,
 				FD4122C02B47C8E90050F0BC /* SMSAuthView.swift in Sources */,
 				FD1161DC2B468FE9000B0064 /* LoginView.swift in Sources */,

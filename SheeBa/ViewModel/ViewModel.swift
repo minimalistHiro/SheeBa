@@ -17,15 +17,18 @@ final class ViewModel: ObservableObject {
     @Published var currentUser: ChatUser?                       // 現在のユーザー
     @Published var chatUser: ChatUser?                          // トーク相手ユーザー
     @Published var allUsers = [ChatUser]()                      // 全ユーザー
-    @Published var friends = [Friend]()                         // 友達ユーザー
-    @Published var friend: Friend?                              // 特定の友達情報
     @Published var recentMessages = [RecentMessage]()           // 全最新メッセージ
     @Published var chatMessages = [ChatMessage]()               // 全メッセージ
+    @Published var friend: Friend?                              // 特定の友達情報
+    @Published var friends = [Friend]()                         // 全友達情報
     @Published var storePoint: StorePoint?                      // 特定の店舗ポイント情報
+    @Published var storePoints = [StorePoint]()                 // 全店舗ポイント情報
+    
     @Published var errorMessage = ""                            // エラーメッセージ
     @Published var isShowError = false                          // エラー表示有無
     @Published var alertMessage = ""                            // アラートメッセージ
     @Published var isShowAlert = false                          // アラート表示有無
+    
     @Published var isScroll = false                             // メッセージスクロール用変数
     @Published var onIndicator = false                          // インジケーターが進行中か否か
     @Published var isQrCodeScanError = false                    // QRコード読み取りエラー
@@ -84,7 +87,7 @@ final class ViewModel: ObservableObject {
                 if !currentUser.isFirstLogin && !currentUser.isStore {
                     self.handleAlert("初回登録特典として\n\(Setting.newRegistrationBenefits)ptプレゼント！")
                     let data = [FirebaseConstants.isFirstLogin: true,]
-                    self.updateUsers(document: currentUser.uid, data: data)
+                    self.updateUser(document: currentUser.uid, data: data)
                 }
                 
                 self.onIndicator = false
@@ -154,7 +157,6 @@ final class ViewModel: ObservableObject {
                     print("最新メッセージの取得に失敗しました。")
                     return
                 }
-//                self.handleNetworkError(error: error, errorMessage: "最新メッセージの取得に失敗しました。")
                 
                 querySnapshot?.documentChanges.forEach({ change in
                     let docId = change.document.documentID
@@ -195,7 +197,6 @@ final class ViewModel: ObservableObject {
                     print("メッセージの取得に失敗しました。")
                     return
                 }
-//                self.handleNetworkError(error: error, errorMessage: "メッセージの取得に失敗しました。")
                 
                 querySnapshot?.documentChanges.forEach({ change in
                     if change.type == .added {
@@ -256,7 +257,6 @@ final class ViewModel: ObservableObject {
                     print("友達情報の取得に失敗しました。")
                     return
                 }
-//                self.handleNetworkError(error: error, errorMessage: "友達情報の取得に失敗しました。")
                 
                 querySnapshot?.documentChanges.forEach({ change in
                     if change.type == .added {
@@ -285,12 +285,45 @@ final class ViewModel: ObservableObject {
             .collection(FirebaseConstants.user)
             .document(document2)
             .getDocument { snapshot, error in
-                
                 guard let data = snapshot?.data() else {
                     print(String.notFoundData)
                     return
                 }
                 self.storePoint = .init(data: data)
+            }
+    }
+    
+    /// UIDに一致する店舗ポイント情報を取得
+    /// - Parameters:
+    ///   - document1: ドキュメント1
+    ///   - document2: ドキュメント2
+    /// - Returns: なし
+    func fetchStorePoints() {
+        guard let uid = FirebaseManager.shared.auth.currentUser?.uid else { return }
+        self.storePoints.removeAll()
+        
+        FirebaseManager.shared.firestore
+            .collection(FirebaseConstants.storePoints)
+            .document(uid)
+            .collection(FirebaseConstants.user)
+            .order(by: FirebaseConstants.username)
+            .addSnapshotListener { querySnapshot, error in
+                if error != nil {
+                    print("店舗ポイント情報の取得に失敗しました。")
+                    return
+                }
+                
+                querySnapshot?.documentChanges.forEach({ change in
+                    if change.type == .added {
+                        do {
+                            let sp = try change.document.data(as: StorePoint.self)
+                            self.storePoints.append(sp)
+                        } catch {
+                            self.handleError(String.notFoundData, error: nil)
+                            return
+                        }
+                    }
+                })
             }
     }
     
@@ -341,7 +374,7 @@ final class ViewModel: ObservableObject {
             }
             
             if image == nil {
-                self.persistUsers(email: email, username: username, age: age, address: address, imageProfileUrl: nil)
+                self.persistUser(email: email, username: username, age: age, address: address, profileImageUrl: nil)
             } else {
                 self.persistImage(email: email, username: username, age: age, address: address, image: image)
             }
@@ -448,7 +481,7 @@ final class ViewModel: ObservableObject {
             
             // メールアドレス認証済み処理
             let data = [FirebaseConstants.isConfirmEmail: true,]
-            self.updateUsers(document: user.uid, data: data)
+            self.updateUser(document: user.uid, data: data)
             
             self.onIndicator = false
             self.didCompleteLoginProcess()
@@ -497,12 +530,6 @@ final class ViewModel: ObservableObject {
             self.onIndicator = false
         }
     }
-    
-//    func signInWithEmailLink(email: String, link: String) {
-//        Auth.auth().signIn(withEmail: email, link: link) { user, error in
-//            self.handleNetworkError(error: error, errorMessage: "メールアドレス認証に失敗しました。")
-//        }
-//    }
     
     /// テキスト送信処理
     /// - Parameters:
@@ -610,11 +637,11 @@ final class ViewModel: ObservableObject {
     ///   - password: パスワード
     ///   - imageProfileUrl: 画像URL
     /// - Returns: なし
-    func persistUsers(email: String, username: String, age: String, address: String, imageProfileUrl: URL?) {
+    func persistUser(email: String, username: String, age: String, address: String, profileImageUrl: URL?) {
         guard let uid = FirebaseManager.shared.auth.currentUser?.uid else { return }
         let userData = [FirebaseConstants.uid : uid,
                         FirebaseConstants.email: email,
-                        FirebaseConstants.profileImageUrl: imageProfileUrl?.absoluteString ?? "",
+                        FirebaseConstants.profileImageUrl: profileImageUrl?.absoluteString ?? "",
                         FirebaseConstants.money: Setting.newRegistrationBenefits,
                         FirebaseConstants.username: username == "" ? email : username,
                         FirebaseConstants.age: age,
@@ -633,19 +660,12 @@ final class ViewModel: ObservableObject {
                     // Authを削除
                     self.deleteAuth()
                     // 画像が保存済みであれば画像を削除
-                    if let imageProfileUrl {
-                        self.deleteImage(withPath: imageProfileUrl.absoluteString)
+                    if let profileImageUrl {
+                        self.deleteImage(withPath: profileImageUrl.absoluteString)
                     }
                     self.handleError("ユーザー情報の保存に失敗しました。", error: error)
                     return
                 }
-//                Analytics.logEvent("user_information", parameters: [
-//                  "age": age as NSObject,
-//                  "address": address as NSObject,
-//                ])
-//                Analytics.setUserProperty(age, forName: "age")
-//                Analytics.setUserProperty(address, forName: "address")
-//                self.didCompleteLoginProcess()
             }
     }
     
@@ -675,7 +695,7 @@ final class ViewModel: ObservableObject {
                     return
                 }
                 guard let url = url else { return }
-                self.persistUsers(email: email, username: username, age: age, address: address, imageProfileUrl: url)
+                self.persistUser(email: email, username: username, age: age, address: address, profileImageUrl: url)
             }
         }
     }
@@ -732,7 +752,7 @@ final class ViewModel: ObservableObject {
     ///   - document2: ドキュメント2
     ///   - data: データ
     /// - Returns: なし
-    func persistFriends(document1: String, document2: String, data: [String: Any]) {
+    func persistFriend(document1: String, document2: String, data: [String: Any]) {
         let document = FirebaseManager.shared.firestore
             .collection(FirebaseConstants.friends)
             .document(document1)
@@ -753,7 +773,7 @@ final class ViewModel: ObservableObject {
     ///   - document2: ドキュメント2
     ///   - data: データ
     /// - Returns: なし
-    func persistStorePoints(document1: String, document2: String,  data: [String: Any]) {
+    func persistStorePoint(document1: String, document2: String,  data: [String: Any]) {
         let document = FirebaseManager.shared.firestore
             .collection(FirebaseConstants.storePoints)
             .document(document1)
@@ -775,7 +795,7 @@ final class ViewModel: ObservableObject {
     ///   - document: ドキュメント
     ///   - data: データ
     /// - Returns: なし
-    func updateUsers(document: String, data: [String: Any]) {
+    func updateUser(document: String, data: [String: Any]) {
         FirebaseManager.shared.firestore
             .collection(FirebaseConstants.users)
             .document(document)
@@ -790,7 +810,7 @@ final class ViewModel: ObservableObject {
     ///   - document2: ドキュメント2
     ///   - data: データ
     /// - Returns: なし
-    func updateRecentMessages(document1: String, document2: String, data: [String: Any]) {
+    func updateRecentMessage(document1: String, document2: String, data: [String: Any]) {
         FirebaseManager.shared.firestore
             .collection(FirebaseConstants.recentMessages)
             .document(document1)
@@ -807,7 +827,7 @@ final class ViewModel: ObservableObject {
     ///   - document2: ドキュメント2
     ///   - data: データ
     /// - Returns: なし
-    func updateFriends(document1: String, document2: String, data: [String: Any]) {
+    func updateFriend(document1: String, document2: String, data: [String: Any]) {
         FirebaseManager.shared.firestore
             .collection(FirebaseConstants.friends)
             .document(document1)
@@ -834,12 +854,12 @@ final class ViewModel: ObservableObject {
     /// - Parameters:
     ///   - document: ドキュメント
     /// - Returns: なし
-    func deleteUsers(document: String) {
+    func deleteUser(document: String) {
         FirebaseManager.shared.firestore
             .collection(FirebaseConstants.users)
             .document(document)
             .delete { error in
-                self.handleNetworkError(error: error, errorMessage: String.failureDeleteData)
+                self.handleNetworkError(error: error, errorMessage: String.failureDeleteUser)
             }
     }
     
@@ -848,13 +868,14 @@ final class ViewModel: ObservableObject {
     ///   - document: ドキュメント
     ///   - collection: コレクション
     /// - Returns: なし
-    func deleteMessages(document: String, collection: String) {
+    func deleteMessage(document: String, collection: String) {
         FirebaseManager.shared.firestore
             .collection(FirebaseConstants.messages)
             .document(document)
             .collection(collection)
             .getDocuments { snapshot, error in
-                self.handleNetworkError(error: error, errorMessage: String.failureDeleteData)
+                self.handleNetworkError(error: error, errorMessage: String.failureDeleteMessage)
+                
                 for document in snapshot!.documents {
                     document.reference.delete { error in
                         if error != nil {
@@ -878,7 +899,7 @@ final class ViewModel: ObservableObject {
             .collection(FirebaseConstants.message)
             .document(document2)
             .delete { error in
-                self.handleNetworkError(error: error, errorMessage: String.failureDeleteData)
+                self.handleNetworkError(error: error, errorMessage: String.failureDeleteRecentMessage)
             }
     }
     
@@ -894,7 +915,23 @@ final class ViewModel: ObservableObject {
             .collection(FirebaseConstants.user)
             .document(document2)
             .delete { error in
-                self.handleNetworkError(error: error, errorMessage: String.failureDeleteData)
+                self.handleNetworkError(error: error, errorMessage: String.failureDeleteFriend)
+            }
+    }
+    
+    /// 店舗ポイント情報を削除
+    /// - Parameters:
+    ///   - document1: ドキュメント1
+    ///   - document2: ドキュメント2
+    /// - Returns: なし
+    func deleteStorePoint(document1: String, document2: String) {
+        FirebaseManager.shared.firestore
+            .collection(FirebaseConstants.storePoints)
+            .document(document1)
+            .collection(FirebaseConstants.user)
+            .document(document2)
+            .delete { error in
+                self.handleNetworkError(error: error, errorMessage: String.failureDeleteStorePoint)
             }
     }
     
@@ -908,33 +945,33 @@ final class ViewModel: ObservableObject {
             if stringImage != "" {
                 let ref = FirebaseManager.shared.storage.reference(withPath: withPath)
                 ref.delete { error in
-                    self.handleNetworkError(error: error, errorMessage: String.failureDeleteData)
+                    self.handleNetworkError(error: error, errorMessage: String.failureDeleteImage)
                 }
             }
         }
     }
     
-    /// Auth削除
+    /// 認証情報削除
     /// - Parameters: なし
     /// - Returns: なし
     func deleteAuth() {
         FirebaseManager.shared.auth.currentUser?.delete { error in
-            self.handleNetworkError(error: error, errorMessage: String.failureDeleteData)
+            self.handleNetworkError(error: error, errorMessage: String.failureDeleteAuth)
         }
     }
     
     /// サインイン失敗時のデータ削除
     /// - Parameters: なし
     /// - Returns: なし
-    func deleteData() {
-        guard let uid = FirebaseManager.shared.auth.currentUser?.uid else { return }
-        // ユーザー情報削除
-        deleteUsers(document: uid)
-        // 画像削除
-        deleteImage(withPath: uid)
-        // Auth削除
-        deleteAuth()
-    }
+//    func deleteData() {
+//        guard let uid = FirebaseManager.shared.auth.currentUser?.uid else { return }
+//        // ユーザー情報削除
+//        deleteUser(document: uid)
+//        // 画像削除
+//        deleteImage(withPath: uid)
+//        // 認証情報削除
+//        deleteAuth()
+//    }
     
 // MARK: - Other
 

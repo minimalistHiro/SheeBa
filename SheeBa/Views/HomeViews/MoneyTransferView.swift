@@ -132,7 +132,7 @@ struct MoneyTransferView: View {
                             
                             // 最新メッセージ、メッセージを削除
                             vm.deleteRecentMessage(document1: uid, document2: friend.uid)
-                            vm.deleteMessages(document: uid, collection: friend.uid)
+                            vm.deleteMessage(document: uid, collection: friend.uid)
                         }
                     } label: {
                         Image(systemName: "trash")
@@ -316,8 +316,8 @@ struct MoneyTransferView: View {
         
         let data = [FirebaseConstants.isApproval: true,]
         // 自身と相手の両方のデータを更新
-        vm.updateFriends(document1: uid, document2: toId, data: data)
-        vm.updateFriends(document1: toId, document2: uid, data: data)
+        vm.updateFriend(document1: uid, document2: toId, data: data)
+        vm.updateFriend(document1: toId, document2: uid, data: data)
         
         vm.fetchFriends()
     }

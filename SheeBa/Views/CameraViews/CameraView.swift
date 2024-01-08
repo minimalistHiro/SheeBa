@@ -68,7 +68,7 @@ struct CameraView: View {
                         }
                     }
                     .navigationDestination(isPresented: $isShowGetPointView) {
-                        GetPointView(chatUser: vm.chatUser, getPoint: getPoint)
+                        GetPointView(chatUser: vm.chatUser, getPoint: getPoint, isSameStoreScanError: isSameStoreScanError)
                     }
             }
         }
@@ -80,6 +80,7 @@ struct CameraView: View {
                     vm.fetchCurrentUser()
                     vm.fetchRecentMessages()
                     vm.fetchFriends()
+                    vm.fetchStorePoints()
                 }
             } else {
                 isUserCurrentryLoggedOut = true
@@ -116,6 +117,15 @@ struct CameraView: View {
                        didAction: {
             vm.isNavigateNotConfirmEmailView = true
         })
+        .fullScreenCover(isPresented: $isUserCurrentryLoggedOut) {
+            EntryView {
+                isUserCurrentryLoggedOut = false
+                vm.fetchCurrentUser()
+                vm.fetchRecentMessages()
+                vm.fetchFriends()
+                vm.fetchStorePoints()
+            }
+        }
         .fullScreenCover(isPresented: $isShowSendPayView) {
             SendPayView(didCompleteSendPayProcess: { sendPayText in
                 isShowSendPayView.toggle()
@@ -170,8 +180,9 @@ struct CameraView: View {
                             handleGetPointFromStore(chatUser: chatUser)
                             self.isShowGetPointView = true
                         } else {
-                            vm.isQrCodeScanError = true
+//                            vm.isQrCodeScanError = true
                             isSameStoreScanError = true
+                            self.isShowGetPointView = true
                             return
                         }
                     } else {
@@ -208,7 +219,7 @@ struct CameraView: View {
         
         // 自身のユーザー情報を更新
         let userData = [FirebaseConstants.money: String(calculatedCurrentUserMoney),]
-        vm.updateUsers(document: currentUser.uid, data: userData)
+        vm.updateUser(document: currentUser.uid, data: userData)
         
         // 店舗ポイント情報を更新
         let storePointData = [
@@ -219,7 +230,7 @@ struct CameraView: View {
             FirebaseConstants.username: chatUser.username,
             FirebaseConstants.date: vm.dateFormat(Date()),
         ] as [String : Any]
-        vm.persistStorePoints(document1: currentUser.uid, document2: chatUser.uid, data: storePointData)
+        vm.persistStorePoint(document1: currentUser.uid, document2: chatUser.uid, data: storePointData)
     }
     
     // MARK: - サインアウト

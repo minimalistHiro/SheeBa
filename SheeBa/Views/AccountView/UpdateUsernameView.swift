@@ -13,11 +13,18 @@ struct UpdateUsernameView: View {
     @Environment(\.dismiss) var dismiss
     @ObservedObject var vm = ViewModel()
     @State private var editText = ""                // 編集テキスト
-    @State private var disabled = true              // ボタンの有効性
     @State private var isShowCloseAlert = false     // 変更破棄確認アラート
-    @State private var isShowChangeAlert = false    // 変更確認アラート
-    @State private var isShowSuccessAlert = false   // 変更成功確認アラート
+    @State private var isShowChangeSuccessAlert = false     // 変更成功アラート
     let username: String
+    
+    // ボタンの有効性
+    var disabled: Bool {
+        if editText == username || editText.isEmpty {
+            return true
+        } else {
+            return false
+        }
+    }
     
     var body: some View {
         NavigationStack {
@@ -29,9 +36,9 @@ struct UpdateUsernameView: View {
                 Spacer()
                 
                 Button {
-                    isShowChangeAlert = true
+                    updateUsername(username: editText)
                 } label: {
-                    CustomCapsule(text: "変更", imageSystemName: nil, foregroundColor: disabled ? .gray : .black, textColor: .white, isStroke: false)
+                    CustomCapsule(text: "確定", imageSystemName: nil, foregroundColor: disabled ? .gray : .black, textColor: .white, isStroke: false)
                 }
                 .disabled(disabled)
                 
@@ -42,6 +49,9 @@ struct UpdateUsernameView: View {
             .contentShape(Rectangle())
             .onTapGesture {
                 focus = false
+            }
+            .overlay {
+                ScaleEffectIndicator(onIndicator: $vm.onIndicator)
             }
         }
         .asAlertBackButton {
@@ -55,35 +65,29 @@ struct UpdateUsernameView: View {
         .navigationTitle("ユーザー名を変更")
         .navigationBarTitleDisplayMode(.inline)
         .onAppear {
-            vm.fetchCurrentUser()
-            vm.fetchRecentMessages()
-            vm.fetchFriends()
-            editText = username
-        }
-        .onChange(of: editText) { text in
-            // テキストに変更がない、もしくは空の場合、ボタンを無効にする。
-            if text == username || text.isEmpty {
-                disabled = true
-            } else {
-                disabled = false
+            if FirebaseManager.shared.auth.currentUser?.uid != nil {
+                vm.fetchCurrentUser()
+                vm.fetchRecentMessages()
+                vm.fetchFriends()
+                editText = username
             }
         }
-        .asDoubleAlert(title: "",
-                       isShowAlert: $isShowChangeAlert,
-                       message: "ユーザー名を変更しますか？",
-                       buttonText: "変更",
-                       didAction: {
-            vm.onIndicator = true
-            updateUsername(username: editText)
-            vm.onIndicator = false
-            isShowChangeAlert = false
-            isShowSuccessAlert = true
-        })
+//        .asDoubleAlert(title: "",
+//                       isShowAlert: $isShowChangeAlert,
+//                       message: "ユーザー名を変更しますか？",
+//                       buttonText: "変更",
+//                       didAction: {
+//            vm.onIndicator = true
+//            updateUsername(username: editText)
+//            vm.onIndicator = false
+//            isShowChangeAlert = false
+//            isShowChangeSuccessAlert = true
+//        })
         .asSingleAlert(title: "",
-                       isShowAlert: $isShowSuccessAlert,
+                       isShowAlert: $isShowChangeSuccessAlert,
                        message: "変更しました。",
                        didAction: {
-            isShowSuccessAlert = false
+            isShowChangeSuccessAlert = false
             dismiss()
         })
         .asDestructiveAlert(title: "",
@@ -99,22 +103,27 @@ struct UpdateUsernameView: View {
     ///   - username: 更新するユーザー名
     /// - Returns: なし
     private func updateUsername(username: String) {
+        vm.onIndicator = true
+        
         guard let uid = FirebaseManager.shared.auth.currentUser?.uid else { return }
         
         let data = [FirebaseConstants.username: username,]
         
         // ユーザー情報を更新
-        vm.updateUsers(document: uid, data: data)
+        vm.updateUser(document: uid, data: data)
         
         // 最新メッセージを更新
         for recentMessage in vm.recentMessages {
-            vm.updateRecentMessages(document1: uid == recentMessage.fromId ? recentMessage.toId :  recentMessage.fromId, document2: uid, data: data)
+            vm.updateRecentMessage(document1: uid == recentMessage.fromId ? recentMessage.toId :  recentMessage.fromId, document2: uid, data: data)
         }
         
         // 友達情報を更新
         for friend in vm.friends {
-            vm.updateFriends(document1: friend.uid, document2: uid, data: data)
+            vm.updateFriend(document1: friend.uid, document2: uid, data: data)
         }
+        
+        vm.onIndicator = false
+        isShowChangeSuccessAlert = true
     }
 }
 

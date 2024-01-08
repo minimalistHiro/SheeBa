@@ -30,6 +30,9 @@ extension String {
         }
     }
     
+    // UserDefault
+    static let authVerificationID = "authVerificationID"
+    
     // ErrorCode
     static let emptyEmailOrPassword = "メールアドレス、パスワードを入力してください。"
     static let invalidEmail = "メールアドレスの形式が正しくありません。"
@@ -40,13 +43,17 @@ extension String {
     static let userDisabled = "このユーザーアカウントは無効化されています。"
     static let networkError = "通信エラーが発生しました。"
     static let notFoundData = "データが見つかりませんでした。"
-    static let failureDeleteData = "データ削除に失敗しました。"
     static let failureFetchUID = "UIDの取得に失敗しました。"
     static let failureFetchUser = "ユーザー情報の取得に失敗しました。"
     static let failureFetchStorePoint = "店舗ポイント情報の取得に失敗しました。"
-    
-    // UserDefault
-    static let authVerificationID = "authVerificationID"
+    static let failureDeleteData = "データ削除に失敗しました。"
+    static let failureDeleteUser = "ユーザー情報の削除に失敗しました。"
+    static let failureDeleteMessage = "メッセージの削除に失敗しました。"
+    static let failureDeleteRecentMessage = "最新メッセージの削除に失敗しました。"
+    static let failureDeleteFriend = "友達情報の削除に失敗しました。"
+    static let failureDeleteStorePoint = "店舗ポイント情報の削除に失敗しました。"
+    static let failureDeleteImage = "画像の削除に失敗しました。"
+    static let failureDeleteAuth = "認証情報の削除に失敗しました。"
     
     // preview
     static let previewUsername = "test"

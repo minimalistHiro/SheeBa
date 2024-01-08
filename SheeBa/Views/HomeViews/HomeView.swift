@@ -52,6 +52,7 @@ struct HomeView: View {
                     vm.fetchCurrentUser()
                     vm.fetchRecentMessages()
                     vm.fetchFriends()
+                    vm.fetchStorePoints()
                 }
             } else {
                 isUserCurrentryLoggedOut = true
@@ -81,7 +82,9 @@ struct HomeView: View {
                        isShowAlert: $vm.isShowNotConfirmEmailError,
                        message: "メールアドレスの認証を完了してください",
                        didAction: {
-            vm.isNavigateNotConfirmEmailView = true
+            DispatchQueue.main.async {
+                vm.isNavigateNotConfirmEmailView = true
+            }
         })
         .fullScreenCover(isPresented: $isUserCurrentryLoggedOut) {
             EntryView {
@@ -89,6 +92,7 @@ struct HomeView: View {
                 vm.fetchCurrentUser()
                 vm.fetchRecentMessages()
                 vm.fetchFriends()
+                vm.fetchStorePoints()
             }
         }
         // TODO: - fullScrrenCover同士がバッティングするとうまく表示されない。
